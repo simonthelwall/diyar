@@ -1,0 +1,17 @@
+Package: diyar
+Type: Package
+Title: Deterministic linkage and episode grouping
+Version: 0.1.0
+Author: Olisaeloka Nsonwu
+Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
+Description: Deterministic linkage and episode grouping.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr,
+    janitor,
+    lubridate,
+    stringr,
+    tidyr
+RoxygenNote: 6.1.1
