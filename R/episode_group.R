@@ -154,26 +154,26 @@ episode_group <- function(df, sn, group_id, strata = NA,
   if(is.null(df[[paste(enquo(data_source))[2]]])){
     df$source <- "A"
   }else{
-    df <- dplyr::rename(df, source= !!enquo(data_source))
+    df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
   }
 
   if(is.null(df[[paste(enquo(rc_episode_length))[2]]])){
-    df <- dplyr::mutate(df, rc_len= !!enquo(episode_length))
+    df <- dplyr::mutate(df, rc_len= !!dplyr::enquo(episode_length))
   }else{
-    df <- dplyr::rename(df, rc_len= !!enquo(rc_episode_length))
+    df <- dplyr::rename(df, rc_len= !!dplyr::enquo(rc_episode_length))
   }
 
   if((is.null(df[[paste(enquo(strata))[2]]]))){
-    df <- dplyr::mutate(df, cri= !!enquo(group_id))
+    df <- dplyr::mutate(df, cri= !!dplyr::enquo(group_id))
   }else{
-    df <- tidyr::unite(df, cri= c(!!enquo(group_id),!!enquo(strata)), remove=FALSE)
+    df <- tidyr::unite(df, cri, c(!!dplyr::enquo(group_id),!!dplyr::enquo(strata)), remove=FALSE)
   }
 
 
   #fields of interest
   T1 <- df %>%
-    dplyr::select(sn=!!enquo(sn), group_id=!!enquo(group_id),
-                  spec_dt=!!enquo(date), epi_len=!!enquo(episode_length), rc_len, source, cri) %>%
+    dplyr::select(sn=!!dplyr::enquo(sn), group_id=!!dplyr::enquo(group_id),
+                  spec_dt=!!dplyr::enquo(date), epi_len=!!dplyr::enquo(episode_length), rc_len, source, cri) %>%
     dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = row_number(), roll=0)
 
   if(from_last==TRUE){
