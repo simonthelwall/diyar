@@ -28,8 +28,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
 
   T1 <- df %>%
     dplyr::select(sn=!!enquo(sn), !!enquo(criteria), sub_cri_lst) %>%
-    dplyr::mutate(m_tag=0, tag = 0, pid = 0, pid_cri = "None") %>%
-    dplyr::rename_at(sn, dplyr::funs(paste("sn")))
+    dplyr::mutate(pr_sn= dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = "None")
 
   cri_no <- length(cri_lst)
 
@@ -164,8 +163,8 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
     #records that don't match anyother record on any of the criteria get unique ids
     dplyr::mutate(pid = ifelse(pid==0, sn,pid)) %>%
     #fields of interest
-    dplyr::select(sn,pid,pid_cri) %>%
-    dplyr::arrange(sn)
+    dplyr::arrange(pr_sn) %>%
+    dplyr::select(sn,pid,pid_cri)
 
   print(
     paste("Group ID complete; " ,
