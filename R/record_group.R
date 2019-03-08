@@ -22,12 +22,12 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
   #2. criteria is > length 0
 
   #confirm fields names exist
-  cri_lst <- select(df,!!enquo(criteria)) %>% names()
+  cri_lst <- dplyr::select(df,!!enquo(criteria)) %>% names()
   sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
 
   T1 <- df %>%
-    dplyr::select(sn=!!enquo(sn), !!enquo(criteria), !!enquo(sub_criteria)) %>%
+    dplyr::select(sn=!!enquo(sn), !!enquo(criteria), sub_cri_lst) %>%
     dplyr::mutate(m_tag=0, tag = 0, pid = 0, pid_cri = "None") %>%
     dplyr::rename_at(sn, dplyr::funs(paste("sn")))
 
