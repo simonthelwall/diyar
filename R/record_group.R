@@ -111,7 +111,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
         dplyr::select(m_tag) %>% min()
 
       T1 <- T1 %>%
-        dplyr::select(sn, pid, pid_cri, cri, cri_lst, sub_cri_lst, tag, m_tag, skip)
+        dplyr::select(sn, pr_sn, pid, pid_cri, cri, cri_lst, sub_cri_lst, tag, m_tag, skip)
 
       c <- c+1
     }
