@@ -30,9 +30,9 @@ episode_group(df, sn, group_id, strata = NA, date, episode_length,
 
 \item{rolls_max}{Numerical vector - The number of times to check for a recurring record before proceeding to a new case. Should be >1. Default is Inf.}
 
-\item{from_last}{Logical - if TRUE, epiosde groupping will be backwards in time from the most recent record. If FALSE, it'll be forward in time from the earliest record. Default is FALSE}
+\item{data_source}{Character/Numerical vector - A column of unique flags indicating the source of each dataset}
 
-\item{source}{Character/Numerical vector - A column of unique flags indicating the source of each dataset}
+\item{from_last}{Logical - if TRUE, epiosde groupping will be backwards in time from the most recent record. If FALSE, it'll be forward in time from the earliest record. Default is FALSE}
 }
 \value{
 Dataframe with a unique episode identifier, type of record based on the epiosde length and type, and if selected,

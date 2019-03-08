@@ -13,7 +13,7 @@
 #' @param episode_type Character - "static" or "rolling". Indicates if the episode is a fixed length from the first incident or from the most recent incident respectively.
 #' @param rolls_max Numerical vector - The number of times to check for a recurring record before proceeding to a new case. Should be >1. Default is Inf.
 #' @param rc_episode_length Numerical vector - A column indicating how long a reocurring episode should last (calendar days). Only used if episode_type is "static".
-#' @param source Character/Numerical vector - A column of unique flags indicating the source of each dataset
+#' @param data_source Character/Numerical vector - A column of unique flags indicating the source of each dataset
 #' @param from_last Logical - if TRUE, epiosde groupping will be backwards in time from the most recent record. If FALSE, it'll be forward in time from the earliest record. Default is FALSE
 #'
 #'
@@ -151,7 +151,7 @@ episode_group <- function(df, sn, group_id, strata = NA,
 
   #Later, add data validations for arguments - assert that
 
-  if(is.na(data_source)){
+  if(is.null(df[[paste(enquo(data_source))[2]]])){
     df$source <- "A"
   }else{
     df <- dplyr::rename(df, source= !!enquo(data_source))
@@ -163,7 +163,7 @@ episode_group <- function(df, sn, group_id, strata = NA,
     df <- dplyr::rename(df, rc_len= !!enquo(rc_episode_length))
   }
 
-  if(all(is.na(strata))){
+  if((is.null(df[[paste(enquo(strata))[2]]]))){
     df <- dplyr::mutate(df, cri= !!enquo(group_id))
   }else{
     df <- tidyr::unite(df, cri= c(!!enquo(group_id),!!enquo(strata)), remove=FALSE)
