@@ -118,7 +118,7 @@ episode_group <- function(df, sn = NA, strata = NA,
 
   #Later, add data validations for arguments - assert that
   enq_vr <- function(x){
-    x <- paste(dplyr::enquo(sn))[2]
+    x <- paste(x)[2]
     x <- stringr::str_replace_all(x," ","")
     x <- stringr::str_replace_all(x,"\\(","")
     x <- stringr::str_replace_all(x,"\\)","")
