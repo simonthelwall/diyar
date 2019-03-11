@@ -127,30 +127,29 @@ episode_group <- function(df, sn = NA, strata = NA,
     return(x)
   }
 
-  if((is.null(df[[enq_vr(dplyr::enquo(sn))]]))){
+  if(all(enq_vr(dplyr::enquo(sn)) %in% names(df))){
     df <- dplyr::mutate(df, sn= dplyr::row_number())
   }else{
     df <- dplyr::rename(df, sn= !!dplyr::enquo(sn))
   }
 
-  if((is.null(df[[enq_vr(dplyr::enquo(data_source))]]))){
+  if(all(enq_vr(dplyr::enquo(data_source)) %in% names(df))){
     df$source <- "A"
   }else{
     df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
   }
 
-  if((is.null(df[[enq_vr(dplyr::enquo(rc_episode_length))]]))){
+  if(all(enq_vr(dplyr::enquo(rc_episode_length)) %in% names(df))){
     df <- dplyr::mutate(df, rc_len= !!dplyr::enquo(episode_length))
   }else{
     df <- dplyr::rename(df, rc_len= !!dplyr::enquo(rc_episode_length))
   }
 
-  if((is.null(df[[enq_vr(dplyr::enquo(strata))]]))){
+  if(all(enq_vr(dplyr::enquo(strata)) %in% names(df))){
     df$cri <- "A"
   }else{
     df <- tidyr::unite(df, cri, c(!!dplyr::enquo(strata)), remove=FALSE)
   }
-
 
   #fields of interest
   T1 <- df %>%
