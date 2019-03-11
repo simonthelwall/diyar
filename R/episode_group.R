@@ -151,21 +151,21 @@ episode_group <- function(df, sn = NA, strata = NA,
   }
 
   #fields of interest
-  T1 <- df %>%
+  df <- df %>%
     dplyr::select(sn, spec_dt=!!dplyr::enquo(date), epi_len=!!dplyr::enquo(episode_length), rc_len, source, cri) %>%
     dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = row_number(), roll=0, episodes=0)
 
   if(from_last==TRUE){
-    T1$ord <- abs(max(T1$spec_dt) - T1$spec_dt)
+    df$ord <- abs(max(df$spec_dt) - df$spec_dt)
   }else if (from_last==FALSE){
-    T1$ord <- abs(min(T1$spec_dt) - T1$spec_dt)
+    df$ord <- abs(min(df$spec_dt) - df$spec_dt)
   }
 
   c <- 1
   min_episodes_nm <- min_tag <- 0
   while (min_tag != 2 & min_episodes_nm <= episodes_max ){
     if(display){print(paste("Episode window",c), sep=" ")}
-    TR <- T1 %>%
+    TR <- df %>%
       #preference to those tagged already i.e. exisitng episodes
       dplyr::arrange(cri, desc(tag), ord, sn) %>%
       #exclude records that will create 1 episode more than episodes_max
@@ -185,32 +185,32 @@ episode_group <- function(df, sn = NA, strata = NA,
 
     #transfering epid to matching record
     ##do not over write existing epids
-    T1 <- T1 %>%
+    df <- df %>%
       dplyr::left_join(TR, by= "cri") %>%
       dplyr::mutate(
         #
         epid = ifelse(
-          tag==0 & tr_tag==0 & abs(spec_dt-tr_spec_dt) <= (epi_len-1) ,
+          tag==0 & tr_tag==0 & !is.na(tr_tag) & abs(spec_dt-tr_spec_dt) <= (epi_len-1) ,
           tr_sn, epid
         )
         ,
         case_nm = ifelse(
-          tag==0 & tr_tag==0 & epid ==tr_sn,
+          tag==0 & tr_tag==0 & !is.na(tr_tag) & epid ==tr_sn & !is.na(tr_sn),
           ifelse(tr_sn == sn, "Case", "Duplicate"),
           case_nm
         ),
         #
         epid = ifelse(
-          tag==0 & tr_tag==1 & abs(spec_dt-tr_spec_dt) <= (rc_len-1),
+          tag==0 & tr_tag==1 & abs(spec_dt-tr_spec_dt) <= (rc_len-1) & !is.na(tr_tag) & !is.na(tr_spec_dt) & !is.na(tr_epid) ,
           tr_epid, epid
         ),
 
-        case_nm = ifelse(tag==0 & tr_tag==1 & epid ==tr_epid,"Recurrent", case_nm)
+        case_nm = ifelse(tag==0 & tr_tag==1 & epid ==tr_epid & !is.na(tr_tag) & !is.na(tr_epid),"Recurrent", case_nm)
       )
 
     #number of tagged records for print output
-    tagged_1 <- subset(T1$epid, !T1$epid %in% c(0,NA) & T1$tag ==0 ) %>%  length()
-    total_1 <- subset(T1$cri, T1$tag ==0 ) %>%  length()
+    tagged_1 <- subset(df$epid, !df$epid %in% c(0,NA) & df$tag ==0 ) %>%  length()
+    total_1 <- subset(df$cri, df$tag ==0) %>%  length()
 
     fmt <- function(g) formatC(g, format="d", big.mark=",")
 
@@ -221,11 +221,11 @@ episode_group <- function(df, sn = NA, strata = NA,
               " records not yet grouped.", sep ="")
       )
     }
-    T1 <- T1 %>%
+    df <- df %>%
       dplyr::arrange(cri, ord, sn) %>%
       dplyr::mutate(
-        roll = ifelse(tr_tag==1, roll + 1, roll),
-        episodes = ifelse(tr_tag==0, episodes + 1, episodes),
+        roll = ifelse(tr_tag==1 & !is.na(tr_tag), roll + 1, roll),
+        episodes = ifelse(tr_tag==0 & !is.na(tr_tag), episodes + 1, episodes),
         #
         mrk_c = paste(epid,case_nm,tag,sep="_"),
         case_nm = ifelse(duplicated(mrk_c) & case_nm =="Recurrent" & tag==0, "Duplicate", case_nm),
@@ -238,23 +238,23 @@ episode_group <- function(df, sn = NA, strata = NA,
       ) %>%
       dplyr::select( -starts_with("tr"), -mrk, -mrk_c)
 
-    min_tag <- min(T1$tag)
-    min_roll <- min(T1$roll)
-    min_episodes_nm <- min(T1$episodes)
+    min_tag <- min(df$tag)
+    min_roll <- min(df$roll)
+    min_episodes_nm <- min(df$episodes)
 
 
     c = c+1
   }
 
-  T1 <- T1 %>%
+  df <- df %>%
     dplyr::mutate(
       case_nm= ifelse(epid==0, "Case", case_nm),
       epid= ifelse(epid==0, sn, epid)
     )
 
-  sourc_list <- as.character(sort(unique(T1$source)))
+  sourc_list <- as.character(sort(unique(df$source)))
 
-  grps <-T1 %>%
+  grps <-df %>%
     dplyr::select(epid, source) %>%
     unique() %>%
     dplyr::mutate(val=source) %>%
@@ -263,17 +263,17 @@ episode_group <- function(df, sn = NA, strata = NA,
     tidyr::unite(epid_grp,sourc_list, sep=",") %>%
     dplyr::mutate(epid_grp = stringr::str_replace_all(epid_grp,"NA,|,NA|^NA$",""))
 
-  T1 <- T1 %>%
+  df <- df %>%
     dplyr::left_join(grps, by="epid") %>%
     dplyr::arrange(pr_sn)
 
   if(all(is.na(data_source))){
-    T1 <- dplyr::select(T1,sn,epid,case_nm)
+    df <- dplyr::select(df,sn,epid,case_nm)
   }else{
-    T1 <- dplyr::select(T1,sn,epid,case_nm,epid_grp)
+    df <- dplyr::select(df,sn,epid,case_nm,epid_grp)
   }
 
   print("Episode tracking complete")
 
-  T1
+  df
 }
