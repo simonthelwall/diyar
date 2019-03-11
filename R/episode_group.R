@@ -118,7 +118,7 @@ episode_group <- function(df, sn = NA, strata = NA,
 
   #Later, add data validations for arguments - assert that
   if(is.null(df[[paste(dplyr::enquo(sn))[2]]])){
-    df <- dplyr::mutate(df, sn= !!dplyr::row_number())
+    df <- dplyr::mutate(df, sn= dplyr::row_number())
   }else{
     df <- dplyr::rename(df, sn= !!dplyr::enquo(sn))
   }
