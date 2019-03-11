@@ -126,25 +126,25 @@ episode_group <- function(df, sn = NA, strata = NA,
     x <- stringr::str_split(x,",")[[1]]
   }
 
-  if((is.null(df[[enq_vr(!!dplyr::enquo(sn))]]))){
+  if((is.null(df[[enq_vr(dplyr::enquo(sn))]]))){
     df <- dplyr::mutate(df, sn= dplyr::row_number())
   }else{
     df <- dplyr::rename(df, sn= !!dplyr::enquo(sn))
   }
 
-  if((is.null(df[[enq_vr(!!dplyr::enquo(data_source))]]))){
+  if((is.null(df[[enq_vr(dplyr::enquo(data_source))]]))){
     df$source <- "A"
   }else{
     df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
   }
 
-  if((is.null(df[[enq_vr(!!dplyr::enquo(rc_episode_length))]]))){
+  if((is.null(df[[enq_vr(dplyr::enquo(rc_episode_length))]]))){
     df <- dplyr::mutate(df, rc_len= !!dplyr::enquo(episode_length))
   }else{
     df <- dplyr::rename(df, rc_len= !!dplyr::enquo(rc_episode_length))
   }
 
-  if((is.null(df[[enq_vr(!!dplyr::enquo(strata))]]))){
+  if((is.null(df[[enq_vr(dplyr::enquo(strata))]]))){
     df$cri <- "A"
   }else{
     df <- tidyr::unite(df, cri, c(!!dplyr::enquo(strata)), remove=FALSE)
