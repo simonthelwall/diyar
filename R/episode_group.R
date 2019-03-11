@@ -124,6 +124,7 @@ episode_group <- function(df, sn = NA, strata = NA,
     x <- stringr::str_replace_all(x,"\\)","")
     x <- stringr::str_replace_all(x,"c","")
     x <- stringr::str_split(x,",")[[1]]
+    return(x)
   }
 
   if((is.null(df[[enq_vr(dplyr::enquo(sn))]]))){
