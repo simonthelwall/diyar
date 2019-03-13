@@ -28,6 +28,8 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
 
   T1 <- df %>%
     dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst) %>%
+    dplyr::mutate_at(dplyr::vars(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
+    dplyr::mutate_at(dplyr::vars(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(isna(.),"",.))) %>%
     dplyr::mutate(pr_sn= dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = "None")
 
   cri_no <- length(cri_lst)
@@ -43,8 +45,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
     curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
 
     if(curr_attr){
-      #func_1 <- function(x){paste("df$",x, "==", "df$tr_",x, sep="")}
-      func_1 <- function(x){paste("(df$",x, "==", "df$tr_",x, " & !is.na(df$",x,")", " & !is.na(df$tr_",x,"))", sep="")}
+      func_1 <- function(x){paste("df$",x, "==", "df$tr_",x, sep="")}
       func_2 <- function(x){paste(x, collapse = " | ")}
       func_3 <- function(x){paste("(",x,")", sep="")}
 
