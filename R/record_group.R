@@ -28,8 +28,8 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
 
   T1 <- df %>%
     dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst) %>%
-    dplyr::mutate_at(dplyr::vars(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
-    dplyr::mutate_at(dplyr::vars(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
+    dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
+    dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
     dplyr::mutate(pr_sn= dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = "None")
 
   cri_no <- length(cri_lst)
