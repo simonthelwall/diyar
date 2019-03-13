@@ -105,11 +105,11 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
         )
 
       min_pid <- T1 %>%
-        dplyr::filter(!is.na(cri)) %>%
+        dplyr::filter(!cri %in% c("",NA)) %>%
         dplyr::select(pid) %>% min()
 
       min_m_tag <- T1 %>%
-        dplyr::filter(!is.na(cri)) %>%
+        dplyr::filter(!cri %in% c("",NA)) %>%
         dplyr::select(m_tag) %>% min()
 
       T1 <- T1 %>%
