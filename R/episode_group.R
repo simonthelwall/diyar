@@ -126,25 +126,27 @@ episode_group <- function(df, sn = NA, strata = NA,
     return(x)
   }
 
-  if(!all(enq_vr(dplyr::enquo(sn)) %in% names(df))){
+  df_list <- names(df)
+
+  if(!all(enq_vr(dplyr::enquo(sn)) %in% df_list)){
     df <- dplyr::mutate(df, sn= dplyr::row_number())
   }else{
     df <- dplyr::rename(df, sn= !!dplyr::enquo(sn))
   }
 
-  if(!all(enq_vr(dplyr::enquo(data_source)) %in% names(df))){
+  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
     df$source <- "A"
   }else{
     df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
   }
 
-  if(!all(enq_vr(dplyr::enquo(rc_episode_length)) %in% names(df))){
+  if(!all(enq_vr(dplyr::enquo(rc_episode_length)) %in% df_list)){
     df <- dplyr::mutate(df, rc_len= !!dplyr::enquo(episode_length))
   }else{
     df <- dplyr::rename(df, rc_len= !!dplyr::enquo(rc_episode_length))
   }
 
-  if(!all(enq_vr(dplyr::enquo(strata)) %in% names(df))){
+  if(!all(enq_vr(dplyr::enquo(strata)) %in% df_list)){
     df$cri <- "A"
   }else{
     df <- tidyr::unite(df, cri, c(!!dplyr::enquo(strata)), remove=FALSE)
@@ -267,7 +269,7 @@ episode_group <- function(df, sn = NA, strata = NA,
     dplyr::left_join(grps, by="epid") %>%
     dplyr::arrange(pr_sn)
 
-  if(!all(enq_vr(dplyr::enquo(data_source)) %in% names(df))){
+  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
     df <- dplyr::select(df,sn,epid,case_nm)
   }else{
     df <- dplyr::select(df,sn,epid,case_nm,epid_grp)
