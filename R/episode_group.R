@@ -267,7 +267,7 @@ episode_group <- function(df, sn = NA, strata = NA,
     dplyr::left_join(grps, by="epid") %>%
     dplyr::arrange(pr_sn)
 
-  if(all(is.na(data_source))){
+  if(!all(enq_vr(dplyr::enquo(data_source)) %in% names(df))){
     df <- dplyr::select(df,sn,epid,case_nm)
   }else{
     df <- dplyr::select(df,sn,epid,case_nm,epid_grp)
