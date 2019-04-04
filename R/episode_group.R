@@ -114,7 +114,8 @@
 
 episode_group <- function(df, sn = NA, strata = NA,
                           date, episode_length, episode_type="static", episodes_max = Inf,
-                          rc_episode_length = NA, rolls_max =Inf, data_source = NA, from_last=FALSE, display=TRUE){
+                          rc_episode_length = NA, rolls_max =Inf, data_source = NA, direction = "any",
+                          source_sort = FALSE, from_last=FALSE, display=TRUE){
 
   #Later, add data validations for arguments - assert that
   enq_vr <- function(x){
@@ -191,8 +192,12 @@ episode_group <- function(df, sn = NA, strata = NA,
       dplyr::left_join(TR, by= "cri") %>%
       dplyr::mutate(
         #
+        day_diff = ifelse(direction=="backward", tr_spec_dt-spec_dt,
+                          ifelse(direction=="any", abs(tr_spec_dt-spec_dt),
+                                 ifelse(direction=="forward", -(tr_spec_dt-spec_dt), NA))
+                                 ),
         epid = ifelse(
-          tag==0 & tr_tag==0 & !is.na(tr_tag) & abs(spec_dt-tr_spec_dt) <= (epi_len-1) ,
+          tag==0 & tr_tag==0 & !is.na(tr_tag) &  day_diff <= (epi_len-1) ,
           tr_sn, epid
         )
         ,
@@ -203,7 +208,7 @@ episode_group <- function(df, sn = NA, strata = NA,
         ),
         #
         epid = ifelse(
-          tag==0 & tr_tag==1 & abs(spec_dt-tr_spec_dt) <= (rc_len-1) & !is.na(tr_tag) & !is.na(tr_spec_dt) & !is.na(tr_epid) ,
+          tag==0 & tr_tag==1 & day_diff <= (rc_len-1) & !is.na(tr_tag) & !is.na(tr_spec_dt) & !is.na(tr_epid) ,
           tr_epid, epid
         ),
 
