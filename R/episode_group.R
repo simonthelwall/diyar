@@ -114,7 +114,7 @@
 
 episode_group <- function(df, sn = NA, strata = NA,
                           date, episode_length, episode_type="static", episodes_max = Inf,
-                          rc_episode_length = NA, rolls_max =Inf, data_source = NA, direction = "any",
+                          rc_episode_length = NA, rolls_max =Inf, data_source = NA,
                           source_sort = FALSE, from_last=FALSE, display=TRUE){
 
   #Later, add data validations for arguments - assert that
@@ -164,13 +164,19 @@ episode_group <- function(df, sn = NA, strata = NA,
     df$ord <- abs(min(df$spec_dt) - df$spec_dt)
   }
 
+  if(source_sort==TRUE){
+    df$s_ord <- df$source
+  }else if (source_sort==FALSE){
+    df$s_ord <- 1
+  }
+
   c <- 1
   min_episodes_nm <- min_tag <- 0
   while (min_tag != 2 & min_episodes_nm <= episodes_max ){
     if(display){print(paste("Episode window",c), sep=" ")}
     TR <- df %>%
       #preference to those tagged already i.e. exisitng episodes
-      dplyr::arrange(cri, desc(tag), ord, sn) %>%
+      dplyr::arrange(cri, s_ord, desc(tag), ord, sn) %>%
       #exclude records that will create 1 episode more than episodes_max
       dplyr::filter(!(tag==0 & episodes + 1 > episodes_max )) %>%
       #pid ids of those tagged before
@@ -186,18 +192,24 @@ episode_group <- function(df, sn = NA, strata = NA,
       break
     }
 
+    #
+
+
     #transfering epid to matching record
     ##do not over write existing epids
     df <- df %>%
-      dplyr::left_join(TR, by= "cri") %>%
+      dplyr::left_join(TR, by= "cri")
+
+    if (from_last==FALSE){
+      df$day_diff <- -(df$tr_spec_dt - df$spec_dt)
+    }else{
+      df$day_diff <- (df$tr_spec_dt - df$spec_dt)
+    }
+
+    df <- df %>%
       dplyr::mutate(
-        #
-        day_diff = ifelse(direction=="backward", tr_spec_dt-spec_dt,
-                          ifelse(direction=="any", abs(tr_spec_dt-spec_dt),
-                                 ifelse(direction=="forward", -(tr_spec_dt-spec_dt), NA))
-                                 ),
         epid = ifelse(
-          tag==0 & tr_tag==0 & !is.na(tr_tag) &  day_diff <= (epi_len-1) ,
+          tag==0 & tr_tag==0 & !is.na(tr_tag) & day_diff >=0 & day_diff <= (epi_len-1) ,
           tr_sn, epid
         )
         ,
@@ -208,7 +220,7 @@ episode_group <- function(df, sn = NA, strata = NA,
         ),
         #
         epid = ifelse(
-          tag==0 & tr_tag==1 & day_diff <= (rc_len-1) & !is.na(tr_tag) & !is.na(tr_spec_dt) & !is.na(tr_epid) ,
+          tag==0 & tr_tag==1 & day_diff >=0 & day_diff <= (rc_len-1) & !is.na(tr_tag) & !is.na(tr_spec_dt) & !is.na(tr_epid) ,
           tr_epid, epid
         ),
 
