@@ -7,7 +7,7 @@
 episode_group(df, sn = NA, strata = NA, date, episode_length,
   episode_type = "static", episodes_max = Inf,
   rc_episode_length = NA, rolls_max = Inf, data_source = NA,
-  from_last = FALSE, display = TRUE)
+  source_sort = FALSE, from_last = FALSE, display = TRUE)
 }
 \arguments{
 \item{df}{A dataframe.}
