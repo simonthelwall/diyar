@@ -14,7 +14,7 @@
 #' @param episodes_max An integer between `0` and `Inf` indicating the number of episodes to track.
 #' @param data_source A colum identifier indicating the source of each record. Usefull when tracking episodes across mutliple datasets.
 #' @param from_last If TRUE, epiosde tracking will be backwards in time starting from the most recent record to. If FALSE, it'll be forward in time starting from the earliest record. Default is FALSE.
-#'
+#' @param display If TRUE, progress status at each stage of episode tracking is displayed on screen
 #'
 #' @return Dataframe with a unique episode identifier, type of record based on the episode length and type, and if selected,
 #' a list of datasets where each episode was identified

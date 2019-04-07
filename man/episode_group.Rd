@@ -31,6 +31,8 @@ episode_group(df, sn = NA, strata = NA, date, episode_length,
 \item{data_source}{A colum identifier indicating the source of each record. Usefull when tracking episodes across mutliple datasets.}
 
 \item{from_last}{If TRUE, epiosde tracking will be backwards in time starting from the most recent record to. If FALSE, it'll be forward in time starting from the earliest record. Default is FALSE.}
+
+\item{display}{If TRUE, progress status at each stage of episode tracking is displayed on screen}
 }
 \value{
 Dataframe with a unique episode identifier, type of record based on the episode length and type, and if selected,

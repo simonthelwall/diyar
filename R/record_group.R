@@ -7,6 +7,8 @@
 #' @param sn A column of unique indentifiers for each record in 'df'
 #' @param criteria Character vector of columns in 'df' representing matching criteria
 #' @param sub_criteria Character vector of columns in 'df' representing matching sub-criteria within each 'criteria'
+#' @param data_source A colum identifier indicating the source of each record. Usefull when tracking record groups across mutliple datasets.
+#' @param display If TRUE, progress status at each stage of record groupping is displayed on screen
 #'
 #' @return Dataframe with a unique group identifier based on the matching criteria and sub-criter
 #'
@@ -16,18 +18,33 @@
 #'
 #' @export
 
-record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
+record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NA, display=TRUE){
   #Later, add data validation to ensure -asser that
   #1. sn is length 1
   #2. criteria is > length 0
+  enq_vr <- function(x){
+    x <- paste(x)[2]
+    x <- stringr::str_replace_all(x," ","")
+    x <- stringr::str_replace_all(x,"^c\\(","")
+    x <- stringr::str_replace_all(x,"\\)","")
+    x <- stringr::str_split(x,",")[[1]]
+    return(x)
+  }
+
+  df_list <- names(df)
 
   #confirm fields names exist
   cri_lst <- dplyr::select(df,!!dplyr::enquo(criteria)) %>% names()
   sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
+  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
+    df$source <- "A"
+  }else{
+    df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
+  }
 
   T1 <- df %>%
-    dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst) %>%
+    dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst, source) %>%
     dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
     dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
     dplyr::mutate(pr_sn= dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = "None")
@@ -113,7 +130,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
         dplyr::select(m_tag) %>% min()
 
       T1 <- T1 %>%
-        dplyr::select(sn, pr_sn, pid, pid_cri, cri, cri_lst, sub_cri_lst, tag, m_tag, skip)
+        dplyr::select(sn, pr_sn, pid, pid_cri, cri, cri_lst, sub_cri_lst, tag, m_tag, skip, source)
 
       c <- c+1
     }
@@ -166,7 +183,27 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, display=TRUE){
     dplyr::mutate(pid = ifelse(pid==0, sn,pid)) %>%
     #fields of interest
     dplyr::arrange(pr_sn) %>%
-    dplyr::select(sn,pid,pid_cri)
+    dplyr::select(sn,pid,pid_cri,source)
+
+  sourc_list <- as.character(sort(unique(T1$source)))
+
+  grps <- T1 %>%
+    dplyr::select(pid, source) %>%
+    unique() %>%
+    dplyr::mutate(val=source) %>%
+    dplyr::arrange(source) %>%
+    tidyr::spread(key=source, value=val) %>%
+    tidyr::unite(pid_grp, sourc_list, sep=",") %>%
+    dplyr::mutate(pid_grp = stringr::str_replace_all(pid_grp,"NA,|,NA|^NA$",""))
+
+  T1 <- T1 %>%
+    dplyr::left_join(grps, by="pid")
+
+  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
+    T1 <- dplyr::select(T1,sn,pid,pid_cri)
+  }else{
+    T1 <- dplyr::select(T1,sn,pid,pid_cri,pid_grp)
+  }
 
   print(
     paste("Group ID complete; " ,

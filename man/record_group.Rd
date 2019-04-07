@@ -4,7 +4,8 @@
 \alias{record_group}
 \title{Deterministic linkage for epidemiological analysis}
 \usage{
-record_group(df, sn, criteria, sub_criteria = NULL, display = TRUE)
+record_group(df, sn, criteria, sub_criteria = NULL, data_source = NA,
+  display = TRUE)
 }
 \arguments{
 \item{df}{A dataframe}
@@ -14,6 +15,10 @@ record_group(df, sn, criteria, sub_criteria = NULL, display = TRUE)
 \item{criteria}{Character vector of columns in 'df' representing matching criteria}
 
 \item{sub_criteria}{Character vector of columns in 'df' representing matching sub-criteria within each 'criteria'}
+
+\item{data_source}{A colum identifier indicating the source of each record. Usefull when tracking record groups across mutliple datasets.}
+
+\item{display}{If TRUE, progress status at each stage of record groupping is displayed on screen}
 }
 \value{
 Dataframe with a unique group identifier based on the matching criteria and sub-criter
