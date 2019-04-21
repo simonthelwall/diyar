@@ -10,21 +10,21 @@ record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
 \arguments{
 \item{df}{A dataframe}
 
-\item{sn}{A column of unique indentifiers for each record in 'df'}
+\item{sn}{A column of unique record indentifiers for the dataframe}
 
-\item{criteria}{Character vector of columns in 'df' representing matching criteria}
+\item{criteria}{Column name(s) of matching criteria. Records with matching values for these columns are groupped together. Records are groupped in order of decreasing certainty *add a book mark here and explain further below*}
 
-\item{sub_criteria}{Character vector of columns in 'df' representing matching sub-criteria within each 'criteria'}
+\item{sub_criteria}{Column name(s) of matching sub-criteria. If not "NULL", only records with matching values for these columns and "sub_criteria" are groupped together. Usefull if you want to relax the matching conditions within reason.}
 
-\item{data_source}{A colum identifier indicating the source of each record. Usefull when tracking record groups across mutliple datasets.}
+\item{data_source}{A column of unique dataset indentifier(s) for the dataframe. Usefull when grouping records from mutliple datasets.}
 
-\item{display}{If TRUE, progress status at each stage of record groupping is displayed on screen}
+\item{display}{If TRUE, progress status at each stage of record grouping is displayed on screen}
 }
 \value{
 Dataframe with a unique group identifier based on the matching criteria and sub-criter
 }
 \description{
-This function links records from one ore more datasets on a unique idenfier using matching or partial matching criteria
+This function links records from one ore more datasets into a unique idenfier based on specified matching criteria
 }
 \examples{
 

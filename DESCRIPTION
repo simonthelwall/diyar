@@ -1,10 +1,10 @@
 Package: diyar
 Type: Package
-Title: Deterministic linkage and episode grouping
+Title: Deterministic linkage and episode grouping for epidemiological analysis
 Version: 0.1.0
 Author: Olisaeloka Nsonwu
 Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
-Description: Deterministic linkage and episode grouping.
+Description: This package inlcudes functions for deterministic linkages of one or more datasets, and groupping records into chronological episodes based on case definitions.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

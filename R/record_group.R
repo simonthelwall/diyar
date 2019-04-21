@@ -1,14 +1,14 @@
 #' @title Deterministic linkage for epidemiological analysis
 #'
-#' @description This function links records from one ore more datasets on a unique idenfier using matching or partial matching criteria
+#' @description This function links records from one ore more datasets into a unique idenfier based on specified matching criteria
 #'
 #'
 #' @param df A dataframe
-#' @param sn A column of unique indentifiers for each record in 'df'
-#' @param criteria Character vector of columns in 'df' representing matching criteria
-#' @param sub_criteria Character vector of columns in 'df' representing matching sub-criteria within each 'criteria'
-#' @param data_source A colum identifier indicating the source of each record. Usefull when tracking record groups across mutliple datasets.
-#' @param display If TRUE, progress status at each stage of record groupping is displayed on screen
+#' @param sn A column of unique record indentifiers for the dataframe
+#' @param criteria Column name(s) of matching criteria. Records with matching values for these columns are groupped together. Records are groupped in order of decreasing certainty *add a book mark here and explain further below*
+#' @param sub_criteria Column name(s) of matching sub-criteria. If not "NULL", only records with matching values for these columns and "sub_criteria" are groupped together. Usefull if you want to relax the matching conditions within reason.
+#' @param data_source A column of unique dataset indentifier(s) for the dataframe. Usefull when grouping records from mutliple datasets.
+#' @param display If TRUE, progress status at each stage of record grouping is displayed on screen
 #'
 #' @return Dataframe with a unique group identifier based on the matching criteria and sub-criter
 #'
@@ -19,9 +19,6 @@
 #' @export
 
 record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL, display=TRUE){
-  #Later, add data validation to ensure -asser that
-  #1. sn is length 1
-  #2. criteria is > length 0
 
   enq_vr <- function(x, vr){
     x <- names(select(x, !!vr))
@@ -37,10 +34,8 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
   ds <- enq_vr(df, dplyr::enquo(data_source))
 
 
-
   df_vars <- names(df)
 
-  #confirm fields names exist
   cri_lst <- enq_vr(df, dplyr::enquo(criteria))
   sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
@@ -122,8 +117,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
           pid = ifelse(
             pid==0 & tr_pid == 0 & !is.na(tr_pid) & sub_cri_match==1,
             tr_sn, pid
-          )
-          ,
+          ),
           m_tag = ifelse(pid !=0 & m_tag != -1,1, m_tag),
           m_tag = ifelse(sn==tr_sn & m_tag ==-1, 1, m_tag )
         )
@@ -154,23 +148,22 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
           )
       }
 
-    #untagging pid groups with only one record to match on the next criteria
+    # untagging record groups with containing only one record
+    # will attempt to match based on the next criteria
     T1 <- T1 %>%
       dplyr::mutate(
-        #keeping track of cases that have not been tagged for the print output
+        # keeping track of cases that have not been tagged for the print output
         tag = ifelse(pid %in% c(0,NA),0,1),
-        #alternative to using group_by to figure it out
         pid = ifelse(
           duplicated(pid) == FALSE & duplicated(pid, fromLast=TRUE) == FALSE,
           0,pid
         ))
-    #number of recordsd untagged
-    removed <- subset(T1$pid, T1$pid %in% c(0,NA) & T1$tag ==1 ) %>%  length()
+    # number of records untagged
+    removed <- subset(T1$pid, T1$pid %in% c(0,NA) & T1$tag ==1 ) %>% length()
+
     T1 <- T1 %>%
       dplyr::mutate(
-        #records tagged with Group id
         tag = ifelse(pid!=0,1,0),
-        #matching criteria. numbered in the order provided
         pid_cri = ifelse(
           tag ==1 & pid_cri == "None",
           paste("Criteria",i,sep=" "), pid_cri
@@ -179,15 +172,14 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
     if(display) {
         print(
-          paste(fmt(removed), " unique group record(s) untagged for possible matching in the next round. Total records to be grouped is now ", fmt(removed + (total_1-tagged_1)),".", sep ="")
+          paste(fmt(removed), " single record group(s) untagged for possible matching on the next criteria. Total records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".", sep ="")
         )
     }
   }
 
   T1 <- T1 %>%
-    #records that don't match anyother record on any of the criteria get unique ids
+    # records that have not yet matched anyother based on all criteria are each a considered a unique group
     dplyr::mutate(pid = ifelse(pid==0, sn,pid)) %>%
-    #fields of interest
     dplyr::arrange(pr_sn) %>%
     dplyr::select(sn,pid,pid_cri,source)
 
@@ -211,8 +203,8 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
   }
 
   print(
-    paste("Group ID complete; " ,
-          fmt(removed + (total_1-tagged_1))," groups with one record." , sep ="")
+    paste("Record Grouping Complete; " ,
+          fmt(removed + (total_1-tagged_1))," group(s) contain only one record." , sep ="")
   )
 
   T1
