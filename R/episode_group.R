@@ -3,18 +3,18 @@
 #' @description This function assigns records into unique chronological episodes
 #'
 #'
-#' @param df A dataframe.
-#' @param sn Unique identifier for each record in `df`.
-#' @param strata A collection of column names forming to form stratas that will be tracked for episodes separately.
-#' @param date A column of type `date` with date of when each record occured.
-#' @param episode_length A column with ineger values between `0` and `Inf` for each record. This indicates episode duration or window in calendar days.
-#' @param episode_type "static" or "rolling". If "static", an episode will only records within a fixed period from the inital record. If "rolling", in addition to those within the fixed period, an episode will inlcude all records within a fixed period of the last "duplicate" or "recurrent" record. Here, the initial record is refered to as the "Case". "Duplicate" are records within a fixed period fo the "Case". "Recurrent" are records after the fixed period of the "Case" but within a fixed period of the last "Duplicate" or a previous "Recurrent" record.
-#' @param rc_episode_length A column with ineger values between `0` and `Inf` for each record. This indicates duration or window recurrence in calendar days. Recurrence here refers to records ocurring after episode_window of the first record but withing Only used if `episode_type` is "rolling".
-#' @param rolls_max An integer between `0` and `Inf`  indicating the maximum number of "Recurring" each episode can have. Only used if `episode_type` is "rolling".
-#' @param episodes_max An integer between `0` and `Inf` indicating the number of episodes to track.
-#' @param data_source A colum identifier indicating the source of each record. Usefull when tracking episodes across mutliple datasets.
-#' @param from_last If TRUE, epiosde tracking will be backwards in time starting from the most recent record to. If FALSE, it'll be forward in time starting from the earliest record. Default is FALSE.
-#' @param display If TRUE, progress status at each stage of episode tracking is displayed on screen
+#' @param df A dataframe
+#' @param sn Unique record indentifiers for the dataframe
+#' @param strata Column(s) to stratify the dataset while grouping into episodes. Episodes will be unique to each strata
+#' @param date Date associated with the record date. A column of `date` type
+#' @param episode_length Episode duration/window in calendar days. Integer values between `0` and `Inf`, and should be unique to each `strata`
+#' @param episodes_max An integer between `0` and `Inf` indicating the number of episod windows for each strata.
+#' @param episode_type "static" or "rolling". If "static", each episode will only include records within a fixed period (`episode_length`) from the inital record (case). If "rolling", will include recurrent records
+#' @param rc_episode_length Period of recurrence in calendar days. Recurrence here refers to records ocurring after `episode_length` of the first record but within the `rc_episode_length` of the last duplicate record. Only used if `episode_type` is "rolling". Should also be unique to each strata, be between `0` and `Inf`
+#' @param rolls_max An integer between `0` and `Inf` indicating the maximum number of recurrent record(s) for each episode. Only used if `episode_type` is "rolling".
+#' @param data_source A column of unique dataset indentifier(s) for the dataframe. Usefull when grouping episodes from mutliple datasets.
+#' @param from_last If TRUE, episode groupping will be backwards in time, starting from the most recent record to the earliest. If FALSE, it'll be forward in time starting from the earliest record.
+#' @param display If TRUE, progress status at each stage of episode grouping is displayed on screen
 #'
 #' @return Dataframe with a unique episode identifier, type of record based on the episode length and type, and if selected,
 #' a list of datasets where each episode was identified
