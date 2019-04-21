@@ -112,42 +112,50 @@
 #' )
 #' @export
 
-episode_group <- function(df, sn = NA, strata = NA,
+episode_group <- function(df, sn = NULL, strata = NULL,
                           date, episode_length, episode_type="static", episodes_max = Inf,
-                          rc_episode_length = NA, rolls_max =Inf, data_source = NA,
+                          rc_episode_length = NULL, rolls_max =Inf, data_source = NULL,
                           source_sort = FALSE, from_last=FALSE, display=TRUE){
 
   #Later, add data validations for arguments - assert that
-  enq_vr <- function(x){
-    x <- paste(x)[2]
-    x <- stringr::str_replace_all(x," ","")
-    x <- stringr::str_replace_all(x,"^c\\(","")
-    x <- stringr::str_replace_all(x,"\\)","")
-    x <- stringr::str_split(x,",")[[1]]
+  enq_vr <- function(x, vr){
+    x <- names(select(x, !!vr))
+
+    if(length(x)==0){
+      x <- NULL
+    }else{
+      x
+    }
     return(x)
   }
 
+  rd_sn <- enq_vr(df, dplyr::enquo(sn))
+  ds <- enq_vr(df, dplyr::enquo(data_source))
+  epl <- enq_vr(df, dplyr::enquo(episode_length))
+  r_epl <- enq_vr(df, dplyr::enquo(rc_episode_length))
+  st <- enq_vr(df, dplyr::enquo(strata))
+
   df_list <- names(df)
 
-  if(!all(enq_vr(dplyr::enquo(sn)) %in% df_list)){
+  if(is.null(rd_sn)){
     df <- dplyr::mutate(df, sn= dplyr::row_number())
   }else{
     df <- dplyr::rename(df, sn= !!dplyr::enquo(sn))
   }
 
-  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
+  if(is.null(ds)){
     df$source <- "A"
   }else{
-    df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
+    df <- dplyr::rename(df, source = !!dplyr::enquo(data_source))
   }
 
-  if(!all(enq_vr(dplyr::enquo(rc_episode_length)) %in% df_list)){
+  if(is.null(r_epl)){
     df <- dplyr::mutate(df, rc_len= !!dplyr::enquo(episode_length))
   }else{
     df <- dplyr::rename(df, rc_len= !!dplyr::enquo(rc_episode_length))
   }
 
-  if(!all(enq_vr(dplyr::enquo(strata)) %in% df_list)){
+  if(is.null(st)){
     df$cri <- "A"
   }else{
     df <- tidyr::unite(df, cri, c(!!dplyr::enquo(strata)), remove=FALSE)
@@ -197,8 +205,7 @@ episode_group <- function(df, sn = NA, strata = NA,
 
     #transfering epid to matching record
     ##do not over write existing epids
-    df <- df %>%
-      dplyr::left_join(TR, by= "cri")
+    df <- dplyr::left_join(df, TR, by= "cri")
 
     if (from_last==FALSE){
       df$day_diff <- -(df$tr_spec_dt - df$spec_dt)
@@ -286,7 +293,7 @@ episode_group <- function(df, sn = NA, strata = NA,
     dplyr::left_join(grps, by="epid") %>%
     dplyr::arrange(pr_sn)
 
-  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
+  if(is.null(ds)){
     df <- dplyr::select(df,sn,epid,case_nm)
   }else{
     df <- dplyr::select(df,sn,epid,case_nm,epid_grp)

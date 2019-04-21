@@ -18,29 +18,36 @@
 #'
 #' @export
 
-record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NA, display=TRUE){
+record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL, display=TRUE){
   #Later, add data validation to ensure -asser that
   #1. sn is length 1
   #2. criteria is > length 0
-  enq_vr <- function(x){
-    x <- paste(x)[2]
-    x <- stringr::str_replace_all(x," ","")
-    x <- stringr::str_replace_all(x,"^c\\(","")
-    x <- stringr::str_replace_all(x,"\\)","")
-    x <- stringr::str_split(x,",")[[1]]
+
+  enq_vr <- function(x, vr){
+    x <- names(select(x, !!vr))
+
+    if(length(x)==0){
+      x <- NULL
+    }else{
+      x
+    }
     return(x)
   }
 
-  df_list <- names(df)
+  ds <- enq_vr(df, dplyr::enquo(data_source))
+
+
+
+  df_vars <- names(df)
 
   #confirm fields names exist
-  cri_lst <- dplyr::select(df,!!dplyr::enquo(criteria)) %>% names()
+  cri_lst <- enq_vr(df, dplyr::enquo(criteria))
   sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
-  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
-    df$source <- "A"
+  if(!is.null(ds)){
+    df <- dplyr::rename(df, source= !!ds)
   }else{
-    df <- dplyr::rename(df, source= !!dplyr::enquo(data_source))
+    df$source <- "A"
   }
 
   T1 <- df %>%
@@ -93,7 +100,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NA, 
         dplyr::select_at(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)) %>%
         dplyr::rename_at(c("pid","m_tag", "tag", "sn","pid_cri",curr_sub_cri_lst), dplyr::funs(paste("tr_",.,sep="")))
 
-      T1 <- T1 %>% dplyr::left_join(TR, by="cri")
+      T1 <- dplyr::left_join(T1,TR, by="cri")
 
       #sub_cri matching
       T1$sub_cri_match <- ifelse(!sub_crx_func(T1) %in% c(NA, FALSE),1,0)
@@ -129,8 +136,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NA, 
         dplyr::filter(!cri %in% c("",NA)) %>%
         dplyr::select(m_tag) %>% min()
 
-      T1 <- T1 %>%
-        dplyr::select(sn, pr_sn, pid, pid_cri, cri, cri_lst, sub_cri_lst, tag, m_tag, skip, source)
+      T1 <- dplyr::select(T1, sn, pr_sn, pid, pid_cri, cri, cri_lst, sub_cri_lst, tag, m_tag, skip, source)
 
       c <- c+1
     }
@@ -196,10 +202,9 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NA, 
     tidyr::unite(pid_grp, sourc_list, sep=",") %>%
     dplyr::mutate(pid_grp = stringr::str_replace_all(pid_grp,"NA,|,NA|^NA$",""))
 
-  T1 <- T1 %>%
-    dplyr::left_join(grps, by="pid")
+  T1 <- dplyr::left_join(T1, grps, by="pid")
 
-  if(!all(enq_vr(dplyr::enquo(data_source)) %in% df_list)){
+  if(is.null(ds)){
     T1 <- dplyr::select(T1,sn,pid,pid_cri)
   }else{
     T1 <- dplyr::select(T1,sn,pid,pid_cri,pid_grp)

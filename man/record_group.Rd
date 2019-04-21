@@ -4,7 +4,7 @@
 \alias{record_group}
 \title{Deterministic linkage for epidemiological analysis}
 \usage{
-record_group(df, sn, criteria, sub_criteria = NULL, data_source = NA,
+record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
   display = TRUE)
 }
 \arguments{

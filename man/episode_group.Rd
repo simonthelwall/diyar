@@ -4,9 +4,9 @@
 \alias{episode_group}
 \title{Episode groupping}
 \usage{
-episode_group(df, sn = NA, strata = NA, date, episode_length,
+episode_group(df, sn = NULL, strata = NULL, date, episode_length,
   episode_type = "static", episodes_max = Inf,
-  rc_episode_length = NA, rolls_max = Inf, data_source = NA,
+  rc_episode_length = NULL, rolls_max = Inf, data_source = NULL,
   source_sort = FALSE, from_last = FALSE, display = TRUE)
 }
 \arguments{
