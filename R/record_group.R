@@ -2,17 +2,16 @@
 #'
 #' @description This function links records from one or more datasets into a unique idenfier. Linkage is based on specified matching criteria.
 #'
-#' @param df Dataframe of one or more datasets
-#' @param sn Unique record indentifiers for the dataframe
-#' @param criteria Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty *add a book mark here and explain further below*
-#' @param sub_criteria Matching sub-criteria. If is not "NULL", only records with matching values in the "criteria" and "sub_criteria" columns are grouped together. Usefull in providing alternative or less stringent conditions. *add a book mark here and explain further below*
-#' @param data_source Unique dataset indentifier for the dataframe. Usefull when dataframe contains >1 datsets.
-#' @param display If TRUE, progress status at each stage of record grouping is displayed on screen
+#' @param df Dataframe. One or more datasets appened together.
+#' @param sn Unique record indentifier for the dataframe.
+#' @param criteria Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty. For exampe, the first criteria is more certian than second therefore, records matching on the first criteria will be grouped together in preference to those matching on the second criteria.
+#' @param sub_criteria Matching sub-criteria. If is not \code{NULL}, only records with matching values in the \code{criteria} and \code{sub_criteria} columns are grouped together. Usefull in providing alternative or less stringent matching criteria.
+#' @param data_source Unique dataset indentifier for the dataframe. Usefull when dataframe contains multiple datsets.
+#' @param display If \code{TRUE}, progress status at each stage of record grouping is displayed on screen.
 #'
 #' @return Dataframe
 #'
 #' @examples
-#'
 #'
 #'
 #' @export

@@ -10,29 +10,29 @@ episode_group(df, sn = NULL, strata = NULL, date, episode_length,
   source_sort = FALSE, from_last = FALSE, display = TRUE)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{Dataframe. One or more datasets appened together.}
 
-\item{sn}{Unique record indentifiers for the dataframe}
+\item{sn}{Unique record indentifier for the dataframe}
 
 \item{strata}{Column names. Episode grouping will be straified by these columns and will be unique to each strata}
 
-\item{date}{Record date. A column of `date` type}
+\item{date}{Record date. A column of \code{date} type}
 
-\item{episode_length}{Episode duration/window in calendar days. Integer values between `0` and `Inf`, and should be unique to each `strata`}
+\item{episode_length}{Episode duration/window in calendar days. Integer values between \code{0} and \code{Inf}, and should be unique to each \emph{strata}.}
 
-\item{episode_type}{"static" or "rolling". If "static", each episode will only include records within a fixed period (`episode_length`) from the inital record (case). If "rolling", will include recurrent records **see rc_episode_length**}
+\item{episode_type}{\emph{"static"} or \emph{"rolling"}. If \emph{"static"}, each episode will only include records within a fixed period \code{episode_length} from the inital record (case). If \emph{"rolling"}, will include recurrent records. \strong{See \code{rc_episode_length}}}
 
-\item{episodes_max}{Maximum number of episodes permitted in each strata. An integer between `0` and `Inf`.}
+\item{episodes_max}{Maximum number of episodes permitted in each strata. An integer between \code{0} and \code{Inf}.}
 
-\item{rc_episode_length}{Period of recurrence in calendar days. Recurrence here refers to records ocurring after `episode_length` of the first record but within the `rc_episode_length` of the last duplicate record. Only used if `episode_type` is "rolling". Should also be unique to each strata. Integer value between `0` and `Inf`}
+\item{rc_episode_length}{Period of recurrence in calendar days. Recurrence here refers to records ocurring after \code{episode_length} of the first record but within the \code{rc_episode_length} of the last duplicate record. Only used if \code{episode_type}`is \emph{"rolling"}. Should also be unique to each strata. Integer value between \code{0} and \code{Inf}}
 
-\item{rolls_max}{Maximum number of recurrence within each episode. Integer between `0` and `Inf`. Only used if `episode_type` is "rolling".}
+\item{rolls_max}{Maximum number of recurrence within each episode. Integer between \code{0} and \code{Inf}. Only used if \code{episode_type} is \emph{"rolling"}.}
 
-\item{data_source}{Unique dataset indentifier for the dataframe. Usefull when dataframe contains >1 datsets.}
+\item{data_source}{Unique dataset indentifier for the dataframe. Usefull when dataframe contains multiple datsets.}
 
-\item{from_last}{If TRUE, episode grouping will be backwards in time - starting from the most recent record to the earliest. If FALSE, it'll be forward in time - starting from the earliest record to most recent.}
+\item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting from the most recent record to the earliest. If \code{FALSE}, it'll be forward in time - starting from the earliest record to most recent.}
 
-\item{display}{If TRUE, progress status at each stage of episode grouping is displayed on screen}
+\item{display}{If \code{TRUE}, progress status at each stage of episode grouping is displayed on screen}
 }
 \value{
 Dataframe with a unique episode identifier, type of record based on the episode length and type, and if selected,
@@ -43,6 +43,7 @@ This function assigns records into unique chronological episodes
 }
 \examples{
 
+
 library(lubridate)
 library(dplyr)
 
@@ -52,32 +53,32 @@ data$episode_len <- 7
 data <- mutate(data, rd_id = row_number())
 
 # The result will include a unique episode ID matching the criteria selected.
-# For each episode - `epid`, the record where episode tracking began is flaged as the "Case" in `case_nm`, while the others are "Duplicate" cases.
+# For each episode - `epid`, the record where episode tracking began is flaged as the \\emph{"Case"} in `case_nm`, while the others are \\emph{"Duplicate"} cases.
 cbind(head(data,10),
       episode_group(head(data,10), sn=rd_id, strata = pid, date = date, episode_length = episode_len)
 )
-# The progress message can be turned off with the `display` argument
+# The progress message can be turned off with the \\code{display} argument
 cbind(head(data,10),
       episode_group(head(data,10), sn=rd_id, strata = pid, date = date, episode_length = episode_len, display = FALSE)
 )
-#A longer `episode_length` will yield less cases and vice versa
+#A longer \\code{episode_length} will yield less cases and vice versa
 data_2 <- mutate(head(data,10), episode_len_s=13)
 cbind(data_2,
       select(episode_group(data_2, sn=rd_id, strata = pid, date = date, episode_length = episode_len, display = FALSE), -sn, epid.1=epid, case.1=case_nm),
-      select(episode_group(data_2, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, display = FALSE), -sn, epid.2.2=epid, case.1=case_nm)
+      select(episode_group(data_2, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, display = FALSE), -sn, epid.2=epid, case.2=case_nm)
 )
-# By default, episode tracking starts from the earliest record of each group and proceeds forward in time. For the reverse use the `from_last` argument
-# Below is an example of episode tracking from both directions with an `episode_length` of 13 calendar days
+# By default, episode tracking starts from the earliest record of each group and proceeds forward in time. For the reverse use the \\code{from_last} argument
+# Below is an example of episode tracking from both directions with an \\code{episode_length} of 13 calendar days
 cbind(data_2,
       #episode tracking starts from the earlist record in each group and proceeds forward in time
       select(episode_group(data_2, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, display = FALSE), -sn, epid.1=epid, case.1=case_nm),
       #episode tracking starts from the most recent record in each group and proceeds backward in time
       select(episode_group(data_2, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, display = FALSE, from_last = TRUE), -sn, epid.2=epid, case.2=case_nm)
 )
-# By deafult, episodes are defined within a fixed window period of `episode_length` in calendar days. Any record after this window period is assigned to a new episode
-# Changing `episode_type` to "rolling" will change this behaviour to account for "Recurring" recording.
-# "Recurring" records occur after the episode `episode_length` of the primary "Case" but within `rc_episode_length` of the last "duplicate" or "recurrent" case
-# The primary "case" and all subsequent "Recurring" cases are assigned to the same episode. If the next chronological record is not a "Recurring" case, it's assigned to a new epsiode.
+# By deafult, episodes are defined within a fixed window period of \\code{episode_length} in calendar days. Any record after this window period is assigned to a new episode
+# Changing \\code{episode_type} to \\emph{"rolling"} will change this behaviour to account for \\emph{"Recurring"} recording.
+# \\emph{"Recurring"} records occur after the episode \\code{episode_length} of the primary \\emph{"Case"} but within \\code{rc_episode_length} of the last \\emph{"Duplicate"} or \\emph{"Recurrent"} case
+# The primary \\emph{"Case"} and all subsequent \\emph{"Recurring"} cases are assigned to the same episode. If the next chronological record is not a \\emph{"Recurring"} case, it is assigned to a new epsiode.
 # The example below demonstrates this
 cbind(data_2,
       #episode tracking starts from the earlist record in each group and proceeds forward in time
@@ -85,9 +86,9 @@ cbind(data_2,
       #episode tracking starts from the most recent record in each group and proceeds backward in time
       select(episode_group(data_2, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, episode_type ="rolling", display = FALSE, from_last = TRUE), -sn, epid.2=epid, case.2=case_nm)
 )
-# By default, `episode_length` is for `rc_episode_length`. A different window period for recurrent records can be specied using the `rc_episode_length` argument.
-# The example below demonsrates the difference between an `episode_length` and `rc_episode_length` of 13 calendar days compared to an `episode_length` of 13 calendar days and `rc_episode_length` of 60 calendar days
-# Both example yield one episode (`epid`) however, the first has 1 primary "case" and 4 "recurrent" records while the second has 1 primary "Case" and 2 recurrent "records"
+# By default, \\code{episode_length} is for \\code{rc_episode_length}. A different window period for recurrent records can be specied using the \\code{rc_episode_length} argument.
+# The example below demonsrates the difference between an \\code{episode_length} and \\code{rc_episode_length} of 13 calendar days compared to an \\code{episode_length} of 13 calendar days and \\code{rc_episode_length} of 60 calendar days
+# Both example yield one episode (`epid`) however, the first has 1 primary \\emph{"Case"} and 4 \\emph{recurrent}records while the second has 1 primary \\emph{"Case"} and 2 recurrent "records"
 data_4 <- mutate(data_2, recurrence=30)
 cbind(data_4,
       #episode tracking starts from the earlist record in each group and proceeds forward in time
@@ -95,10 +96,10 @@ cbind(data_4,
       #episode tracking starts from the most recent record in each group and proceeds backward in time
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, episode_length = episode_len, episode_type ="rolling", rc_episode_length = recurrence, display = FALSE), -sn, epid.2=epid, case.2=case_nm)
 )
-# By default the function will continue checking for recurring cases until the last record (or first if `from_last` is TRUE By default, `episode_length` is for `rc_episode_length`.
-# You can specify how many times to check for recurring records with the `rolls_max` argument
-# When the rolling window is closed by `rolls_max` subsequent records after the last "Recurring" case are assigned to new episodes
-# The example below demonsrates in output is when `episode_length` is 13 calendar deys, `rc_episode_length` is 30 calendar days and rolls_max is Inf (default) or 1.
+# By default the function will continue checking for recurring cases until the last record (or first if \\code{from_last} is TRUE By default, \\code{episode_length} is for \\code{rc_episode_length}.
+# You can specify how many times to check for recurring records with the \\code{rolls_max} argument
+# When the rolling window is closed by \\code{rolls_max} subsequent records after the last "Recurring" case are assigned to new episodes
+# The example below demonsrates in output is when \\code{episode_length} is 13 calendar deys, \\code{rc_episode_length} is 30 calendar days and rolls_max is Inf (default) or 1.
 data_4 <- mutate(data_4, recurrence=4)
 cbind(data_4,
       #episode tracking starts from the earlist record in each group and proceeds forward in time
@@ -106,7 +107,7 @@ cbind(data_4,
       #episode tracking starts from the most recent record in each group and proceeds backward in time
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, episode_type ="rolling", rc_episode_length = recurrence, rolls_max = 1,  display = FALSE), -sn, epid.2=epid, case.2=case_nm)
 )
-# Note that if `rolls_max` is "0" the function will have the same behaviour as when `episode_type` is "static" .
+# Note that if \\code{rolls_max} is "0" the function will have the same behaviour as when \\code{episode_type} is \\emph{"static"} .
 
 cbind(data_4,
       #episode tracking starts from the earlist record in each group and proceeds forward in time
@@ -114,7 +115,7 @@ cbind(data_4,
       #episode tracking starts from the most recent record in each group and proceeds backward in time
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, episode_type ="rolling", rc_episode_length = recurrence, rolls_max = 0,  display = FALSE), -sn, epid.2=epid, case.2=case_nm)
 )
-# You can also choose a maximum of episodes to track within each `strata` using `episodes_max`. The default value is Inf which will access the maximum number of windows available from the dataset
+# You can also choose a maximum of episodes to track within each \\code{strata} using \\code{episodes_max}. The default value is Inf which will access the maximum number of windows available from the dataset
 cbind(data_4,
       #episode tracking starts from the earlist record in each group and proceeds forward in time
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, episode_type ="static", rc_episode_length = recurrence, episodes_max = 1, display = FALSE), -sn, epid_l=epid, case_l=case_nm),
@@ -122,7 +123,7 @@ cbind(data_4,
       select(episode_group(data_4, sn=rd_id, strat = pid, date = date, episode_length = episode_len_s, episode_type ="static", rc_episode_length = recurrence, episodes_max = 2,  display = FALSE), -sn, epid_s=epid, case_s=case_nm)
 )
 
-# Also note that `rolls_max` and `episodes_max` controls different aspects of episode tracking hence their behaviour are not interchangeble
+# Also note that \\code{rolls_max} and \\code{episodes_max} controls different aspects of episode tracking hence their behaviour are not interchangeble
 # For instance, the examples below gives the same result
 data_5 <- mutate(data_4, recurrence=13)
 
