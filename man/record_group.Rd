@@ -4,22 +4,27 @@
 \alias{record_group}
 \title{Deterministic linkage for epidemiological analysis}
 \usage{
-record_group(df, sn, criteria, sub_criteria = NULL, display = TRUE)
+record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
+  display = TRUE)
 }
 \arguments{
-\item{df}{A dataframe}
+\item{df}{Dataframe of one or more datasets}
 
-\item{sn}{A column of unique indentifiers for each record in 'df'}
+\item{sn}{Unique record indentifiers for the dataframe}
 
-\item{criteria}{Character vector of columns in 'df' representing matching criteria}
+\item{criteria}{Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty *add a book mark here and explain further below*}
 
-\item{sub_criteria}{Character vector of columns in 'df' representing matching sub-criteria within each 'criteria'}
+\item{sub_criteria}{Matching sub-criteria. If is not "NULL", only records with matching values in the "criteria" and "sub_criteria" columns are grouped together. Usefull in providing alternative or less stringent conditions. *add a book mark here and explain further below*}
+
+\item{data_source}{Unique dataset indentifier for the dataframe. Usefull when dataframe contains >1 datsets.}
+
+\item{display}{If TRUE, progress status at each stage of record grouping is displayed on screen}
 }
 \value{
-Dataframe with a unique group identifier based on the matching criteria and sub-criter
+Dataframe
 }
 \description{
-This function links records from one ore more datasets on a unique idenfier using matching or partial matching criteria
+This function links records from one or more datasets into a unique idenfier. Linkage is based on specified matching criteria.
 }
 \examples{
 
