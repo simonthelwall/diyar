@@ -151,8 +151,10 @@ episode_group <- function(df, sn = NULL, strata = NULL,
     df <- dplyr::rename(df, source = !!dplyr::enquo(data_source))
   }
 
+    df <- dplyr::rename(df, epi_len= !!dplyr::enquo(episode_length))
+
   if(is.null(r_epl)){
-    df <- dplyr::mutate(df, rc_len= !!dplyr::enquo(episode_length))
+    df <- dplyr::mutate(df, rc_len= epi_len)
   }else{
     df <- dplyr::rename(df, rc_len= !!dplyr::enquo(rc_episode_length))
   }
@@ -165,7 +167,7 @@ episode_group <- function(df, sn = NULL, strata = NULL,
 
   #fields of interest
   df <- df %>%
-    dplyr::select(sn, spec_dt=!!dplyr::enquo(date), epi_len=!!dplyr::enquo(episode_length), .data$rc_len, .data$source, .data$cri) %>%
+    dplyr::select(sn, spec_dt=!!dplyr::enquo(date), epi_len, .data$rc_len, .data$source, .data$cri) %>%
     dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
 
   if(from_last==TRUE){
