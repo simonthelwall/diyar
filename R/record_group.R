@@ -18,17 +18,6 @@
 
 record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL, display=TRUE){
 
-  enq_vr <- function(x, vr){
-    x <- names(dplyr::select(x, !!vr))
-
-    if(length(x)==0){
-      x <- NULL
-    }else{
-      x
-    }
-    return(x)
-  }
-
   ds <- enq_vr(df, dplyr::enquo(data_source))
 
 
@@ -136,8 +125,6 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
     tagged_1 <- length(subset(T1$pid, !T1$pid %in% c(0,NA) & T1$tag ==0 ))
     total_1 <- length(subset(T1$pid, T1$tag ==0 ))
-
-    fmt <- function(g) formatC(g, format="d", big.mark=",")
 
     if(display) {
       print(

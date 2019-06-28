@@ -130,16 +130,6 @@ episode_group <- function(df, sn = NULL, strata = NULL,
                           source_sort = FALSE, from_last=FALSE, display=TRUE){
 
   #Later, add data validations for arguments - assert that
-  enq_vr <- function(x, vr){
-    x <- names(dplyr::select(x, !!vr))
-
-    if(length(x)==0){
-      x <- NULL
-    }else{
-      x
-    }
-    return(x)
-  }
 
   rd_sn <- enq_vr(df, dplyr::enquo(sn))
   ds <- enq_vr(df, dplyr::enquo(data_source))
@@ -247,8 +237,6 @@ episode_group <- function(df, sn = NULL, strata = NULL,
     #number of tagged records for print output
     tagged_1 <- length(subset(df$epid, !df$epid %in% c(0,NA) & df$tag ==0 ))
     total_1 <- length(subset(df$cri, df$tag ==0))
-
-    fmt <- function(g) formatC(g, format="d", big.mark=",")
 
     if(display){
       print(
