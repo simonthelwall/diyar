@@ -118,13 +118,14 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     T1$skip <- T1$m_tag <- c <- min_m_tag <- min_pid <- 0
 
     while (min_pid==0 | min_m_tag==-1) {
+      T1$force_check <- ifelse(T1$m_tag==-1,2,T1$tag)
       if(c+1 >1 ){
         print(paste("Criteria",i,": iteration ",c+1), sep="")
       }
 
       TR <- T1 %>%
         dplyr::filter(!.data$cri %in% c("",NA))  %>%
-        dplyr::arrange(.data$cri, .data$skip, dplyr::desc(.data$tag), .data$m_tag, .data$sn) %>%
+        dplyr::arrange(.data$cri, .data$skip, dplyr::desc(.data$force_check), dplyr::desc(.data$tag), .data$m_tag, .data$sn) %>%
         dplyr::filter(duplicated(.data$cri) == FALSE) %>%
         dplyr::select_at(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)) %>%
         dplyr::rename_at(c("pid","m_tag", "tag", "sn","pid_cri",curr_sub_cri_lst), dplyr::funs(paste("tr_",.,sep="")))
@@ -165,7 +166,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
         dplyr::select(.data$m_tag) %>% min()
 
       T1 <- dplyr::select(T1, .data$sn, .data$pr_sn, .data$pid, .data$pid_cri, .data$cri, cri_lst, sub_cri_lst,
-                          .data$ tag, .data$m_tag, .data$skip, .data$source)
+                          .data$ tag, .data$m_tag, .data$skip, .data$source, .data$force_check)
 
       c <- c+1
     }
