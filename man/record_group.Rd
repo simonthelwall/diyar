@@ -12,11 +12,11 @@ record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
 
 \item{sn}{Unique record indentifier for the dataframe.}
 
-\item{criteria}{Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty. For exampe, the first criteria is more certian than second therefore, records matching on the first criteria will be grouped together in preference to those matching on the second criteria.}
+\item{criteria}{Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty. For exampe, the first criteria is more certain than second therefore, records matching on the first criteria will be grouped together in preference to those matching on the second criteria.}
 
 \item{sub_criteria}{Matching sub-criteria. If is not \code{NULL}, only records with matching values in the \code{criteria} and \code{sub_criteria} columns are grouped together. Usefull in providing alternative or less stringent matching criteria.}
 
-\item{data_source}{Unique dataset indentifier for the dataframe. Usefull when dataframe contains multiple datsets.}
+\item{data_source}{Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datasets.}
 
 \item{display}{If \code{TRUE}, progress status at each stage of record grouping is displayed on screen.}
 }
@@ -28,7 +28,8 @@ This function links records from one or more datasets into a unique idenfier. Li
 }
 \examples{
 
-librar(dplyr)
+
+library(dplyr)
 
 df <- data.frame(
   cri_1 = c("A","C","B","C","A"),

@@ -4,16 +4,16 @@
 #'
 #' @param df Dataframe. One or more datasets appened together.
 #' @param sn Unique record indentifier for the dataframe.
-#' @param criteria Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty. For exampe, the first criteria is more certian than second therefore, records matching on the first criteria will be grouped together in preference to those matching on the second criteria.
+#' @param criteria Matching criteria. Records with matching values in these columns are grouped together. Records are grouped in order of decreasing certainty. For exampe, the first criteria is more certain than second therefore, records matching on the first criteria will be grouped together in preference to those matching on the second criteria.
 #' @param sub_criteria Matching sub-criteria. If is not \code{NULL}, only records with matching values in the \code{criteria} and \code{sub_criteria} columns are grouped together. Usefull in providing alternative or less stringent matching criteria.
-#' @param data_source Unique dataset indentifier for the dataframe. Usefull when dataframe contains multiple datsets.
+#' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datasets.
 #' @param display If \code{TRUE}, progress status at each stage of record grouping is displayed on screen.
 #'
 #' @return Dataframe
 #'
 #' @examples
 #'
-#' librar(dplyr)
+#' library(dplyr)
 #'
 #' df <- data.frame(
 #'   cri_1 = c("A","C","B","C","A"),
