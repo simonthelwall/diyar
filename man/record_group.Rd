@@ -28,5 +28,52 @@ This function links records from one or more datasets into a unique idenfier. Li
 }
 \examples{
 
+librar(dplyr)
+
+df <- data.frame(
+  cri_1 = c("A","C","B","C","A"),
+  r_id = c(1:5),
+  stringsAsFactors = FALSE
+)
+
+cbind(df, record_group(df,r_id, cri_1))
+
+# Records with NA or "" in a particular criteria are excluded from episode grouping on that criteria
+data_2 <- df
+data_2$cri_1 <- ifelse(data_2$cri_1=="A", NA, data_2$cri_1)
+data_2$cri_1 <- ifelse(data_2$cri_1=="B", "", data_2$cri_1)
+
+cbind(data_2, record_group(data_2,r_id, cri_1, display = FALSE))
+
+# Record grouping on 2 criteria
+data_3 <- data.frame(
+  cri_1 = c("A","C","Z","V","F","G","G"),
+  cri_2 = c("CC","AA","CC","VV","AA","CB","CC"),
+  r_id = c(1:7),
+
+  stringsAsFactors = FALSE
+)
+
+data_3$cri_1 <- ifelse(data_3$r_id==7, NA, data_3$cri_1 )
+cbind(data_3, record_group(data_3,r_id, c(cri_1, cri_2), display = FALSE))
+
+# At each stage of episode grouping ("criteria"), additonal matching conditions ("sub_criteria") can be introduced with a list of sub-criteria.
+# Each sub-criteria consists of character vectors which are column names within the dataframe.
+# If records match on the "criteria" but do not match on ALL "sub_criteria", they are assigned to a new record group
+# "sub_criteria" should be a list of character vectors. Each vector represents a sub-criteria
+# Each sub-criteria should be name using this format; sXy, where "X" is linkage stage when the sub-criteria is to be introduced while "y" is a sufficient prefix to differentiate between the criteria
+
+data_4 <- data.frame(
+  cri_1 = c(NA,NA,NA,NA,NA,2,2),
+  cri_2 = rep("A1",7),
+  cri_2a = c("A","B","D","X","F","G","G"),
+  cri_2b = c("B","B","D","X","F","G","I"),
+  cri_2c = c("A","C","A","A","F","G","I"),
+  r_id = c(1:7),
+
+  stringsAsFactors = FALSE
+)
+
+cbind(df_4a, record_group(data_4,r_id, c(cri_1, cri_2), list(s2a=c("cri_2a","cri_2b","cri_2c")) ))
 
 }
