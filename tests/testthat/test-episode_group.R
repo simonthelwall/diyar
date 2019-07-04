@@ -3,6 +3,8 @@ context("testing episode_group function")
 library(testthat)
 library(diyar)
 library(dplyr)
+library(lubridate)
+
 
 # Test 1
 data <- data.frame(date = seq.Date(dmy("01/04/2018"), dmy("31/05/2018"), by="3 days"))
@@ -51,7 +53,7 @@ test_that("test rolling/recurring episodes", {
 
 })
 
-data_4 <- mutate(data_4, recurrence=4)
+data_4 <- mutate(data_2, recurrence=4)
 test_4 <- cbind(data_4,
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, episode_type ="rolling", rc_episode_length = recurrence, display = FALSE), -sn, epid.1=epid, case.1=case_nm),
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, episode_length = episode_len_s, episode_type ="rolling", rc_episode_length = recurrence, rolls_max = 1,  display = FALSE), -sn, epid.2=epid, case.2=case_nm)
@@ -80,7 +82,7 @@ test_that("testing episodes_max 1", {
 })
 
 # Test 6
-data_6 <- data_5
+data_6 <-  mutate(data_4, recurrence=3)
 data_6$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_6 <- cbind(data_6,

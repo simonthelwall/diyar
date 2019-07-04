@@ -28,6 +28,7 @@ This function links records from one or more datasets into a unique idenfier. Li
 }
 \examples{
 
+
 library(dplyr)
 
 df <- data.frame(

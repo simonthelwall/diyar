@@ -3,6 +3,7 @@ context("testing record_group function")
 library(testthat)
 library(diyar)
 library(dplyr)
+library(lubridate)
 
 # Test 1
 df <- data.frame(
